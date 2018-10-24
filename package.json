@@ -1,6 +1,6 @@
 {
   "name": "twinkly-api",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A simple nodejs client for connecting to twinkly lights",
   "main": "twinkly-api.js",
   "scripts": {
