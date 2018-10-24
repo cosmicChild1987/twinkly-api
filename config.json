@@ -1,0 +1,7 @@
+{
+	"base": "http://192.168.0.77/xled/v1/",
+	"endpoints": {
+		"login": "login",
+		"mode": "/xled/v1/led/mode"
+	}
+}
