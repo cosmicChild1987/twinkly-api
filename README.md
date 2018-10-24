@@ -17,18 +17,18 @@ Currently this client is very limited, please feel free to contribute to expand 
 ### setMode
 Set the current mode of the LED lights
 
-#### Parameters
+##### Parameters
 * Mode (String), this can be one of the following options
 	* off - turns off lights
 	* demo - starts predefined sequence of effects that are changed after few seconds
 	* movie - plays predefined or uploaded effect
 	* rt - receive effect in real time
 
-#### Response
+##### Response
 	Returns a promise, with no data
 	
 #### setDeviceName
 Changes the name of the current device
 
-#### Parameters
+##### Parameters
 * Name (String), Desired device name. At most 32 characters.
