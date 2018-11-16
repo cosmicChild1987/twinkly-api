@@ -5,7 +5,12 @@ const config = require('./config.json');
 
 module.exports = class TwinklyLights {
 	constructor(ipAddress) {
+		if (!ipAddress) {
+			throw new Error('Device address must be passed');
+		}
 		this.ip = ipAddress;
+		this.crypto = crypto;
+		this.axios = axios;
 	}
 	getBaseUrl () {
 		return `http://${this.ip}:80/xled/v1/`;
@@ -13,9 +18,9 @@ module.exports = class TwinklyLights {
 	generateToken () {
 		const _this = this;
 		return new Promise((resolve, reject) => {
-			crypto.randomBytes(32, (err, buffer) => {
+			this.crypto.randomBytes(32, (err, buffer) => {
 		  		const token = buffer.toString('base64');
-				return axios.post(`${_this.getBaseUrl()}${config.endpoints.login}`, {challenge: token})
+				return this.axios.post(`${_this.getBaseUrl()}${config.endpoints.login}`, {challenge: token})
 					.then(response => {
 						this.credentials = response.data;
 						this.credentialsExpiry = new Date().getTime() + ((_this.credentials.authentication_token_expires_in * 1000) - 5000)
@@ -62,7 +67,7 @@ module.exports = class TwinklyLights {
 				    port: 8888
 				  }
 			  }
-		  	return axios(requestOptions)
+		  	return this.axios(requestOptions)
 			  	.then((status) => {
 			  		console.log(path, 'request done')
 			  	});
@@ -77,25 +82,28 @@ module.exports = class TwinklyLights {
 		return this.makeAuthenticatedRequest(config.endpoints.reset, 'post', {})
 	}
 	newMovieConfig (delay, leds, frames) {
-		console.log("Setting " + frames + "frames")
 		return this.makeAuthenticatedRequest(config.endpoints.movieConfig, 'post', {
 			frame_delay: delay,
 			leds_number: leds,
 			frames_number: frames
 		})
 	}
+	
+	sendMovieToDevice (movie) {
+		return this.makeAuthenticatedRequest(config.endpoints.movie, 'post', movie, 'application/octet-stream')
+	}
 	convertMovieFormat (movie) {
-		var fullArray =[];
-		var output = {
+		const fullArray =[];
+		const output = {
 			bufferArray: undefined,
 			frameCount: movie.frames.length,
 			lightsCount: movie.frames[0].length
 		}
-		for (var x =0; x < movie.frames.length; x++) {
+		for (let x =0; x < movie.frames.length; x++) {
 			if (movie.frames[x].length !== output.lightsCount) {
 				throw new Error('Not all frames have the same number of lights!')
 			}
-			for (var y = 0; y < movie.frames[x].length; y++) {
+			for (let y = 0; y < movie.frames[x].length; y++) {
 				fullArray.push(movie.frames[x][y].r);
 				fullArray.push(movie.frames[x][y].g);
 				fullArray.push(movie.frames[x][y].b);
@@ -104,27 +112,24 @@ module.exports = class TwinklyLights {
 		output.bufferArray = new ArrayBuffer(fullArray.length);
 
 
-		var longInt8View = new Uint8Array(output.bufferArray);
+		const longInt8View = new Uint8Array(output.bufferArray);
 
-		for (var x =0; x < fullArray.length; x++) {
+		for (let x =0; x < fullArray.length; x++) {
 			longInt8View[x] = fullArray[x];
 		}
 		return output;
 
 	}
-	sendMovieToDevice (movie) {
-		return this.makeAuthenticatedRequest(config.endpoints.movie, 'post', movie, 'application/octet-stream')
-	}
 	generateFullFrame (colour, lightCount) {
-		var frame = []
-		for (var x = 0; x < lightCount; x++) {
+		const frame = []
+		for (let x = 0; x < lightCount; x++) {
 			frame.push({r: colour.r,g: colour.g,b: colour.b});
 		}
 		return frame;
 
 	}
 	newMovieUpload (movie) {
-		var movieFormat = this.convertMovieFormat(movie);
+		const movieFormat = this.convertMovieFormat(movie);
 		return this.setMode("off")
 		.then (() => {
 			return this.sendMovieToDevice(movieFormat.bufferArray)
