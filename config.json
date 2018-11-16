@@ -1,8 +1,11 @@
 {
-	"base": "http://192.168.0.77/xled/v1/",
+	"base": "/xled/v1/",
 	"endpoints": {
 		"login": "login",
 		"mode": "led/mode",
-		"deviceName": "device_name"
+		"deviceName": "device_name",
+		"reset": "led/reset",
+		"movieConfig": "led/movie/config",
+		"movie": "led/movie/full"
 	}
 }
