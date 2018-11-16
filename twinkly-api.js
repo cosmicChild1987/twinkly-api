@@ -61,11 +61,7 @@ module.exports = class TwinklyLights {
 			        'X-Auth-Token': this.credentials.authentication_token,
 			        'Content-Type': type
 			    },
-			    json: true,
-			    proxy: {
-				    host: '192.168.50.50',
-				    port: 8888
-				  }
+			    json: true
 			  }
 		  	return this.axios(requestOptions)
 			  	.then((status) => {
@@ -88,7 +84,7 @@ module.exports = class TwinklyLights {
 			frames_number: frames
 		})
 	}
-	
+
 	sendMovieToDevice (movie) {
 		return this.makeAuthenticatedRequest(config.endpoints.movie, 'post', movie, 'application/octet-stream')
 	}
